@@ -26,7 +26,7 @@ namespace WebApplication.Pages.Customers
         }
 
         [BindProperty]
-        public DataTables.DataTablesRequest BasicDataTablesRequest { get; set; }
+        public DataTables.DataTablesRequest DataTablesRequest { get; set; }
 
         public async Task<JsonResult> OnPostAsync()
         {
@@ -34,7 +34,7 @@ namespace WebApplication.Pages.Customers
 
             var customersQuery = _context.Customers.AsQueryable();
 
-            var searchText = BasicDataTablesRequest.Search.Value;
+            var searchText = DataTablesRequest.Search.Value;
             if (!string.IsNullOrWhiteSpace(searchText))
             {
                 customersQuery = customersQuery.Where(s =>
@@ -47,16 +47,16 @@ namespace WebApplication.Pages.Customers
 
             var recordsFiltered = customersQuery.Count();
 
-            var sortColumnName = BasicDataTablesRequest.Columns[BasicDataTablesRequest.Order[0].Column].Name;
-            var sortDirection = BasicDataTablesRequest.Order[0].Dir.ToLower();
+            var sortColumnName = DataTablesRequest.Columns[DataTablesRequest.Order[0].Column].Name;
+            var sortDirection = DataTablesRequest.Order[0].Dir.ToLower();
 
             customersQuery = sortDirection == "desc" ?
                 customersQuery.OrderByDescending(s => s.GetType().GetProperty(sortColumnName).GetValue(s))
                 :
                 customersQuery.OrderBy(s => s.GetType().GetProperty(sortColumnName).GetValue(s));
 
-            var skip = BasicDataTablesRequest.Start;
-            var take = BasicDataTablesRequest.Length;
+            var skip = DataTablesRequest.Start;
+            var take = DataTablesRequest.Length;
             var data = await customersQuery
                 .Skip(skip)
                 .Take(take)
@@ -64,7 +64,7 @@ namespace WebApplication.Pages.Customers
 
             return new JsonResult(new
             {
-                Draw = BasicDataTablesRequest.Draw,
+                Draw = DataTablesRequest.Draw,
                 RecordsTotal = recordsTotal,
                 RecordsFiltered = recordsFiltered,
                 Data = data
