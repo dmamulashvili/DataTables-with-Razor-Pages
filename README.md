@@ -1,12 +1,8 @@
 # DataTables-with-Razor-Pages
-jQuery DataTables Server-side processing with ASP.NET Core Razor Pages, Entity Framework Core & SQLite
+jQuery DataTables Simple Server-side processing with ASP.NET Core Razor Pages, Entity Framework Core & SQLite
 
 ## Used NuGet Packages
-1. AspNetCore implementation for DataTables.AspNet.
-```
-Install-Package DataTables.AspNet.AspNetCore -Version 2.0.2
-```
-2. SQLite database provider for Entity Framework Core.
+1. SQLite database provider for Entity Framework Core.
 ```
 Install-Package Microsoft.EntityFrameworkCore.Sqlite -Version 2.2.6
 ```
@@ -23,9 +19,6 @@ public void ConfigureServices(IServiceCollection services)
         options.MinimumSameSitePolicy = SameSiteMode.None;
     });
     
-    // DataTables.AspNet.AspNetCore
-    services.RegisterDataTables();
-
     services.AddDbContext<ApplicationDbContext>(options =>
             // Microsoft.EntityFrameworkCore.Sqlite
             options.UseSqlite(Configuration.GetConnectionString("ApplicationDbContextConnection")));
@@ -80,13 +73,57 @@ public class ApplicationDbContext : DbContext
     }
 }
 ```
-## DataTables Implementation
+## DataTables Simple Implementation
 1. Style Sheets & Scripts `/Pages/Shared/_Layout.cshtml`
 ```
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 ```
-2. Server-side processing `/Pages/Customers/Index.cshtml.cs`
+2. DataTables Request Models
+```
+public class DataTablesRequest
+{
+    public int Draw { get; set; }
+
+    public List<Column> Columns { get; set; }
+
+    public List<Order> Order { get; set; }
+
+    public int Start { get; set; }
+
+    public int Length { get; set; }
+
+    public Search Search { get; set; }
+}
+
+public class Column
+{
+    public string Data { get; set; }
+
+    public string Name { get; set; }
+
+    public bool Searchable { get; set; }
+
+    public bool Orderable { get; set; }
+
+    public Search Search { get; set; }
+}
+
+public class Order
+{
+    public int Column { get; set; }
+
+    public string Dir { get; set; }
+}
+
+public class Search
+{
+    public string Value { get; set; }
+
+    public bool IsRegex { get; set; }
+}
+```
+3. Server-side processing `/Pages/Customers/Index.cshtml.cs`
 ```
 public class IndexModel : PageModel
 {
@@ -99,13 +136,13 @@ public class IndexModel : PageModel
 
     public IList<Customer> Customer { get;set; }
 
-    [BindProperty]
-    public IDataTablesRequest DataTablesRequest { get; set; }
-
     public async Task OnGetAsync()
     {
         //Customer = await _context.Customers.ToListAsync();
     }
+
+    [BindProperty]
+    public DataTables.DataTablesRequest BasicDataTablesRequest { get; set; }
 
     public async Task<JsonResult> OnPostAsync()
     {
@@ -113,28 +150,29 @@ public class IndexModel : PageModel
 
         var customersQuery = _context.Customers.AsQueryable();
 
-        var searchText = DataTablesRequest.Search.Value;
+        var searchText = BasicDataTablesRequest.Search.Value;
         if (!string.IsNullOrWhiteSpace(searchText))
         {
             customersQuery = customersQuery.Where(s =>
                 s.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                 s.PhoneNumber.Contains(searchText) ||
-                s.Address.Contains(searchText, StringComparison.OrdinalIgnoreCase) || 
+                s.Address.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                 s.PostalCode.Contains(searchText)
             );
         }
 
         var recordsFiltered = customersQuery.Count();
 
-        var sortColumn = DataTablesRequest.Columns.FirstOrDefault(s => s.Sort != null);
+        var sortColumnName = BasicDataTablesRequest.Columns[BasicDataTablesRequest.Order[0].Column].Name;
+        var sortDirection = BasicDataTablesRequest.Order[0].Dir.ToLower();
 
-        customersQuery = sortColumn.Sort.Direction == SortDirection.Descending ?
-            customersQuery.OrderByDescending(s => s.GetType().GetProperty(sortColumn.Name).GetValue(s))
+        customersQuery = sortDirection == "desc" ?
+            customersQuery.OrderByDescending(s => s.GetType().GetProperty(sortColumnName).GetValue(s))
             :
-            customersQuery.OrderBy(s => s.GetType().GetProperty(sortColumn.Name).GetValue(s));
+            customersQuery.OrderBy(s => s.GetType().GetProperty(sortColumnName).GetValue(s));
 
-        var skip = DataTablesRequest.Start;
-        var take = DataTablesRequest.Length;
+        var skip = BasicDataTablesRequest.Start;
+        var take = BasicDataTablesRequest.Length;
         var data = await customersQuery
             .Skip(skip)
             .Take(take)
@@ -142,7 +180,7 @@ public class IndexModel : PageModel
 
         return new JsonResult(new
         {
-            Draw = DataTablesRequest.Draw,
+            Draw = BasicDataTablesRequest.Draw,
             RecordsTotal = recordsTotal,
             RecordsFiltered = recordsFiltered,
             Data = data
@@ -150,7 +188,7 @@ public class IndexModel : PageModel
     }
 }
 ```
-3. Client-side `/Pages/Customers/Index.cshtml`
+4. Client-side `/Pages/Customers/Index.cshtml`
 ```
 <p>
     <a asp-page="Create">Create New</a>
