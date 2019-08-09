@@ -1,5 +1,5 @@
 # DataTables-with-Razor-Pages
-jQuery DataTables Server-side processing with ASP.NET Core Razor Pages, Entity Framework Core & SQLite
+jQuery DataTables Simple Server-side processing with ASP.NET Core Razor Pages, Entity Framework Core & SQLite
 
 ## Used NuGet Packages
 1. SQLite database provider for Entity Framework Core.
@@ -73,13 +73,57 @@ public class ApplicationDbContext : DbContext
     }
 }
 ```
-## DataTables Implementation
+## DataTables Simple Implementation
 1. Style Sheets & Scripts `/Pages/Shared/_Layout.cshtml`
 ```
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 ```
-2. Server-side processing `/Pages/Customers/Index.cshtml.cs`
+2. DataTables Request Models
+```
+public class DataTablesRequest
+{
+    public int Draw { get; set; }
+
+    public List<Column> Columns { get; set; }
+
+    public List<Order> Order { get; set; }
+
+    public int Start { get; set; }
+
+    public int Length { get; set; }
+
+    public Search Search { get; set; }
+}
+
+public class Column
+{
+    public string Data { get; set; }
+
+    public string Name { get; set; }
+
+    public bool Searchable { get; set; }
+
+    public bool Orderable { get; set; }
+
+    public Search Search { get; set; }
+}
+
+public class Order
+{
+    public int Column { get; set; }
+
+    public string Dir { get; set; }
+}
+
+public class Search
+{
+    public string Value { get; set; }
+
+    public bool IsRegex { get; set; }
+}
+```
+3. Server-side processing `/Pages/Customers/Index.cshtml.cs`
 ```
 public class IndexModel : PageModel
 {
@@ -144,7 +188,7 @@ public class IndexModel : PageModel
     }
 }
 ```
-3. Client-side `/Pages/Customers/Index.cshtml`
+4. Client-side `/Pages/Customers/Index.cshtml`
 ```
 <p>
     <a asp-page="Create">Create New</a>
