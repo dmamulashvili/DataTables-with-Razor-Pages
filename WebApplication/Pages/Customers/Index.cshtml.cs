@@ -47,8 +47,8 @@ namespace WebApplication.Pages.Customers
 
             var recordsFiltered = customersQuery.Count();
 
-            var sortColumnName = DataTablesRequest.Columns[DataTablesRequest.Order[0].Column].Name;
-            var sortDirection = DataTablesRequest.Order[0].Dir.ToLower();
+            var sortColumnName = DataTablesRequest.Columns.ElementAt(DataTablesRequest.Order.ElementAt(0).Column).Name;
+            var sortDirection = DataTablesRequest.Order.ElementAt(0).Dir.ToLower();
 
             customersQuery = sortDirection == "desc" ?
                 customersQuery.OrderByDescending(s => s.GetType().GetProperty(sortColumnName).GetValue(s))

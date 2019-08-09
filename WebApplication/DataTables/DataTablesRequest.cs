@@ -9,9 +9,9 @@ namespace WebApplication.DataTables
     {
         public int Draw { get; set; }
 
-        public List<Column> Columns { get; set; }
+        public IEnumerable<Column> Columns { get; set; }
 
-        public List<Order> Order { get; set; }
+        public IEnumerable<Order> Order { get; set; }
 
         public int Start { get; set; }
 
