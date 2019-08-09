@@ -2,11 +2,7 @@
 jQuery DataTables Server-side processing with ASP.NET Core Razor Pages, Entity Framework Core & SQLite
 
 ## Used NuGet Packages
-1. AspNetCore implementation for DataTables.AspNet.
-```
-Install-Package DataTables.AspNet.AspNetCore -Version 2.0.2
-```
-2. SQLite database provider for Entity Framework Core.
+1. SQLite database provider for Entity Framework Core.
 ```
 Install-Package Microsoft.EntityFrameworkCore.Sqlite -Version 2.2.6
 ```
@@ -23,9 +19,6 @@ public void ConfigureServices(IServiceCollection services)
         options.MinimumSameSitePolicy = SameSiteMode.None;
     });
     
-    // DataTables.AspNet.AspNetCore
-    services.RegisterDataTables();
-
     services.AddDbContext<ApplicationDbContext>(options =>
             // Microsoft.EntityFrameworkCore.Sqlite
             options.UseSqlite(Configuration.GetConnectionString("ApplicationDbContextConnection")));
@@ -99,13 +92,13 @@ public class IndexModel : PageModel
 
     public IList<Customer> Customer { get;set; }
 
-    [BindProperty]
-    public IDataTablesRequest DataTablesRequest { get; set; }
-
     public async Task OnGetAsync()
     {
         //Customer = await _context.Customers.ToListAsync();
     }
+
+    [BindProperty]
+    public DataTables.DataTablesRequest BasicDataTablesRequest { get; set; }
 
     public async Task<JsonResult> OnPostAsync()
     {
@@ -113,28 +106,29 @@ public class IndexModel : PageModel
 
         var customersQuery = _context.Customers.AsQueryable();
 
-        var searchText = DataTablesRequest.Search.Value;
+        var searchText = BasicDataTablesRequest.Search.Value;
         if (!string.IsNullOrWhiteSpace(searchText))
         {
             customersQuery = customersQuery.Where(s =>
                 s.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                 s.PhoneNumber.Contains(searchText) ||
-                s.Address.Contains(searchText, StringComparison.OrdinalIgnoreCase) || 
+                s.Address.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                 s.PostalCode.Contains(searchText)
             );
         }
 
         var recordsFiltered = customersQuery.Count();
 
-        var sortColumn = DataTablesRequest.Columns.FirstOrDefault(s => s.Sort != null);
+        var sortColumnName = BasicDataTablesRequest.Columns[BasicDataTablesRequest.Order[0].Column].Name;
+        var sortDirection = BasicDataTablesRequest.Order[0].Dir.ToLower();
 
-        customersQuery = sortColumn.Sort.Direction == SortDirection.Descending ?
-            customersQuery.OrderByDescending(s => s.GetType().GetProperty(sortColumn.Name).GetValue(s))
+        customersQuery = sortDirection == "desc" ?
+            customersQuery.OrderByDescending(s => s.GetType().GetProperty(sortColumnName).GetValue(s))
             :
-            customersQuery.OrderBy(s => s.GetType().GetProperty(sortColumn.Name).GetValue(s));
+            customersQuery.OrderBy(s => s.GetType().GetProperty(sortColumnName).GetValue(s));
 
-        var skip = DataTablesRequest.Start;
-        var take = DataTablesRequest.Length;
+        var skip = BasicDataTablesRequest.Start;
+        var take = BasicDataTablesRequest.Length;
         var data = await customersQuery
             .Skip(skip)
             .Take(take)
@@ -142,7 +136,7 @@ public class IndexModel : PageModel
 
         return new JsonResult(new
         {
-            Draw = DataTablesRequest.Draw,
+            Draw = BasicDataTablesRequest.Draw,
             RecordsTotal = recordsTotal,
             RecordsFiltered = recordsFiltered,
             Data = data
