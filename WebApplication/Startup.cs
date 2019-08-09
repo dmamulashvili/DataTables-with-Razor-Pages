@@ -34,9 +34,11 @@ namespace WebApplication
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            // DataTables.AspNet.AspNetCore
             services.RegisterDataTables();
 
             services.AddDbContext<ApplicationDbContext>(options =>
+                    // Microsoft.EntityFrameworkCore.Sqlite
                     options.UseSqlite(Configuration.GetConnectionString("ApplicationDbContextConnection")));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
