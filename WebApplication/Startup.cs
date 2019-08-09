@@ -16,12 +16,14 @@ namespace WebApplication
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
             Configuration = configuration;
+            HostingEnvironment = hostingEnvironment;
         }
 
         public IConfiguration Configuration { get; }
+        public IHostingEnvironment HostingEnvironment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -35,7 +37,7 @@ namespace WebApplication
 
             services.AddDbContext<ApplicationDbContext>(options =>
                     // Microsoft.EntityFrameworkCore.Sqlite
-                    options.UseSqlite(Configuration.GetConnectionString("ApplicationDbContextConnection")));
+                    options.UseSqlite(Configuration.GetConnectionString("ApplicationDbContextConnection").Replace("~", HostingEnvironment.ContentRootPath)));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
