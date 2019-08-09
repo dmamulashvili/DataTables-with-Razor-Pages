@@ -81,7 +81,12 @@ public class ApplicationDbContext : DbContext
 }
 ```
 ## DataTables Implementation
-1. Server-side processing `/Pages/Customers/Index.cshtml.cs`
+1. Style Sheets & Scripts `/Pages/Shared/_Layout.cshtml`
+```
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+```
+2. Server-side processing `/Pages/Customers/Index.cshtml.cs`
 ```
 public class IndexModel : PageModel
 {
@@ -145,7 +150,7 @@ public class IndexModel : PageModel
     }
 }
 ```
-2. Client-side `/Pages/Customers/Index.cshtml`
+3. Client-side `/Pages/Customers/Index.cshtml`
 ```
 <p>
     <a asp-page="Create">Create New</a>
