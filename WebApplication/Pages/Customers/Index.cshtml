@@ -1,0 +1,69 @@
+﻿@page
+@model WebApplication.Pages.Customers.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table id="myTable" class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer[0].Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer[0].Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer[0].PhoneNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer[0].Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer[0].PostalCode)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+    $(document).ready(function () {
+        $('#myTable').DataTable({
+            "proccessing": true,
+            "serverSide": true,
+            "ajax": {
+                url: "/customers",
+                type: 'POST',
+                headers: { 'RequestVerificationToken': $('@Html.AntiForgeryToken()').val() }
+            },
+            "columnDefs": [
+                {
+                    "targets": -1,
+                    "data": null,
+                    "render": function (data, type, row, meta) {
+                        return '<a href="/customers/edit/' + data.id + '">Edit</a> | <a href="/customers/details/' + data.id + '">Details</a> | <a href="/customers/delete/' + data.id + '">Delete</a>';
+                    },
+                    "sortable": false
+                },
+                { "name": "Id", "data": "id", "targets": 0, "visible": false },
+                { "name": "Name", "data": "name", "targets": 1 },
+                { "name": "PhoneNumber", "data": "phoneNumber", "targets": 2 },
+                { "name": "Address", "data": "address", "targets": 3 },
+                { "name": "PostalCode", "data": "postalCode", "targets": 4 }
+            ],
+            "order": [[0, "desc"]]
+        });
+    });
+    </script>
+}
