@@ -49,7 +49,7 @@ public void ConfigureServices(IServiceCollection services)
 ```
 
 ## Data Models
-1. `Customer.cs`
+1. `/Data/Customer.cs`
 ```
 public class Customer
   {
@@ -64,7 +64,7 @@ public class Customer
       public string PostalCode { get; set; }
   }
 ```
-2. `ApplicationDbContext.cs`
+2. `/Data/ApplicationDbContext.cs`
 ```
 public class ApplicationDbContext : DbContext
 {
