@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DataTables.AspNet.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -33,9 +32,6 @@ namespace WebApplication
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
-            // DataTables.AspNet.AspNetCore
-            services.RegisterDataTables();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                     // Microsoft.EntityFrameworkCore.Sqlite

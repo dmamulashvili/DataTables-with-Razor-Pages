@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DataTables.AspNet.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -21,13 +20,13 @@ namespace WebApplication.Pages.Customers
 
         public IList<Customer> Customer { get;set; }
 
-        [BindProperty]
-        public IDataTablesRequest DataTablesRequest { get; set; }
-
         public async Task OnGetAsync()
         {
             //Customer = await _context.Customers.ToListAsync();
         }
+
+        [BindProperty]
+        public DataTables.DataTablesRequest BasicDataTablesRequest { get; set; }
 
         public async Task<JsonResult> OnPostAsync()
         {
@@ -35,28 +34,29 @@ namespace WebApplication.Pages.Customers
 
             var customersQuery = _context.Customers.AsQueryable();
 
-            var searchText = DataTablesRequest.Search.Value;
+            var searchText = BasicDataTablesRequest.Search.Value;
             if (!string.IsNullOrWhiteSpace(searchText))
             {
                 customersQuery = customersQuery.Where(s =>
                     s.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                     s.PhoneNumber.Contains(searchText) ||
-                    s.Address.Contains(searchText, StringComparison.OrdinalIgnoreCase) || 
+                    s.Address.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
                     s.PostalCode.Contains(searchText)
                 );
             }
 
             var recordsFiltered = customersQuery.Count();
 
-            var sortColumn = DataTablesRequest.Columns.FirstOrDefault(s => s.Sort != null);
+            var sortColumnName = BasicDataTablesRequest.Columns[BasicDataTablesRequest.Order[0].Column].Name;
+            var sortDirection = BasicDataTablesRequest.Order[0].Dir.ToLower();
 
-            customersQuery = sortColumn.Sort.Direction == SortDirection.Descending ?
-                customersQuery.OrderByDescending(s => s.GetType().GetProperty(sortColumn.Name).GetValue(s))
+            customersQuery = sortDirection == "desc" ?
+                customersQuery.OrderByDescending(s => s.GetType().GetProperty(sortColumnName).GetValue(s))
                 :
-                customersQuery.OrderBy(s => s.GetType().GetProperty(sortColumn.Name).GetValue(s));
+                customersQuery.OrderBy(s => s.GetType().GetProperty(sortColumnName).GetValue(s));
 
-            var skip = DataTablesRequest.Start;
-            var take = DataTablesRequest.Length;
+            var skip = BasicDataTablesRequest.Start;
+            var take = BasicDataTablesRequest.Length;
             var data = await customersQuery
                 .Skip(skip)
                 .Take(take)
@@ -64,7 +64,7 @@ namespace WebApplication.Pages.Customers
 
             return new JsonResult(new
             {
-                Draw = DataTablesRequest.Draw,
+                Draw = BasicDataTablesRequest.Draw,
                 RecordsTotal = recordsTotal,
                 RecordsFiltered = recordsFiltered,
                 Data = data
