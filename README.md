@@ -1,46 +1,6 @@
 # DataTables-with-Razor-Pages
 jQuery DataTables Simple Server-side processing with ASP.NET Core Razor Pages, Entity Framework Core & SQLite
 
-## Used NuGet Packages
-1. SQLite database provider for Entity Framework Core.
-```
-Install-Package Microsoft.EntityFrameworkCore.Sqlite -Version 2.2.6
-```
-
-## Sample Project Configurations
-1. Updated `Startup.cs`'s `ConfigureServices` method:
-```
-public void ConfigureServices(IServiceCollection services)
-{
-    services.Configure<CookiePolicyOptions>(options =>
-    {
-        // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-        options.CheckConsentNeeded = context => true;
-        options.MinimumSameSitePolicy = SameSiteMode.None;
-    });
-    
-    services.AddDbContext<ApplicationDbContext>(options =>
-            // Microsoft.EntityFrameworkCore.Sqlite
-            options.UseSqlite(Configuration.GetConnectionString("ApplicationDbContextConnection")));
-
-    services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-}
-```
-2. Added connection string `appsettings.json`.
-```
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Warning"
-    }
-  },
-  "AllowedHosts": "*",
-  "ConnectionStrings": {
-    "ApplicationDbContextConnection": "DataSource=WebApplication.db"
-  }
-}
-```
-
 ## Data Models
 1. `/Data/Customer.cs`
 ```
@@ -73,7 +33,7 @@ public class ApplicationDbContext : DbContext
     }
 }
 ```
-## DataTables Simple Implementation
+## DataTables Implementation
 1. Style Sheets & Scripts `/Pages/Shared/_Layout.cshtml`
 ```
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
@@ -163,8 +123,8 @@ public class IndexModel : PageModel
 
         var recordsFiltered = customersQuery.Count();
 
-        var sortColumnName = DataTablesRequest.Columns[DataTablesRequest.Order[0].Column].Name;
-        var sortDirection = DataTablesRequest.Order[0].Dir.ToLower();
+        var sortColumnName = DataTablesRequest.Columns.ElementAt(DataTablesRequest.Order.ElementAt(0).Column).Name;
+        var sortDirection = DataTablesRequest.Order.ElementAt(0).Dir.ToLower();
 
         customersQuery = sortDirection == "desc" ?
             customersQuery.OrderByDescending(s => s.GetType().GetProperty(sortColumnName).GetValue(s))
