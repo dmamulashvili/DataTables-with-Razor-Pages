@@ -18,7 +18,7 @@ namespace WebApplication.Pages.Customers
             _context = context;
         }
 
-        public IList<Customer> Customer { get;set; }
+        public IList<Customer> Customers { get;set; }
 
         public async Task OnGetAsync()
         {
