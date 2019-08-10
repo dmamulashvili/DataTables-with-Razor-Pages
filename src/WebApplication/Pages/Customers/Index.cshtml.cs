@@ -22,7 +22,7 @@ namespace WebApplication.Pages.Customers
 
         public async Task OnGetAsync()
         {
-            //Customer = await _context.Customers.ToListAsync();
+            //Customers = await _context.Customers.ToListAsync();
         }
 
         [BindProperty]
