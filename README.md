@@ -94,11 +94,11 @@ public class IndexModel : PageModel
         _context = context;
     }
 
-    public IList<Customer> Customer { get;set; }
+    public IList<Customer> Customers { get;set; }
 
     public async Task OnGetAsync()
     {
-        //Customer = await _context.Customers.ToListAsync();
+        //Customers = await _context.Customers.ToListAsync();
     }
 
     [BindProperty]
@@ -157,19 +157,19 @@ public class IndexModel : PageModel
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Customer[0].Id)
+                @Html.DisplayNameFor(model => model.Customers[0].Id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Customer[0].Name)
+                @Html.DisplayNameFor(model => model.Customers[0].Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Customer[0].PhoneNumber)
+                @Html.DisplayNameFor(model => model.Customers[0].PhoneNumber)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Customer[0].Address)
+                @Html.DisplayNameFor(model => model.Customers[0].Address)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Customer[0].PostalCode)
+                @Html.DisplayNameFor(model => model.Customers[0].PostalCode)
             </th>
             <th></th>
         </tr>
