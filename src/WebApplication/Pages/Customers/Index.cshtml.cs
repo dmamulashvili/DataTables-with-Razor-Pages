@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -34,14 +35,14 @@ namespace WebApplication.Pages.Customers
 
             var customersQuery = _context.Customers.AsQueryable();
 
-            var searchText = DataTablesRequest.Search.Value;
+            var searchText = DataTablesRequest.Search.Value?.ToUpper();
             if (!string.IsNullOrWhiteSpace(searchText))
             {
                 customersQuery = customersQuery.Where(s =>
-                    s.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                    s.PhoneNumber.Contains(searchText) ||
-                    s.Address.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-                    s.PostalCode.Contains(searchText)
+                    s.Name.ToUpper().Contains(searchText) ||
+                    s.PhoneNumber.ToUpper().Contains(searchText) ||
+                    s.Address.ToUpper().Contains(searchText) ||
+                    s.PostalCode.ToUpper().Contains(searchText)
                 );
             }
 
@@ -50,10 +51,7 @@ namespace WebApplication.Pages.Customers
             var sortColumnName = DataTablesRequest.Columns.ElementAt(DataTablesRequest.Order.ElementAt(0).Column).Name;
             var sortDirection = DataTablesRequest.Order.ElementAt(0).Dir.ToLower();
 
-            customersQuery = sortDirection == "desc" ?
-                customersQuery.OrderByDescending(s => s.GetType().GetProperty(sortColumnName).GetValue(s))
-                :
-                customersQuery.OrderBy(s => s.GetType().GetProperty(sortColumnName).GetValue(s));
+            customersQuery = customersQuery.OrderBy($"{sortColumnName} {sortDirection}");
 
             var skip = DataTablesRequest.Start;
             var take = DataTablesRequest.Length;
