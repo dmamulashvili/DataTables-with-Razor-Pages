@@ -51,6 +51,7 @@ namespace WebApplication.Pages.Customers
             var sortColumnName = DataTablesRequest.Columns.ElementAt(DataTablesRequest.Order.ElementAt(0).Column).Name;
             var sortDirection = DataTablesRequest.Order.ElementAt(0).Dir.ToLower();
 
+            // using System.Linq.Dynamic.Core
             customersQuery = customersQuery.OrderBy($"{sortColumnName} {sortDirection}");
 
             var skip = DataTablesRequest.Start;
