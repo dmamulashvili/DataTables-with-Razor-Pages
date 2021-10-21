@@ -3,7 +3,7 @@ jQuery DataTables Simple Server-side processing with ASP.NET Core Razor Pages, E
 
 ## Data Models
 1. `/Data/Customer.cs`
-```
+```cs
 public class Customer
   {
       public int Id { get; set; }
@@ -18,7 +18,7 @@ public class Customer
   }
 ```
 2. `/Data/ApplicationDbContext.cs`
-```
+```cs
 public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
@@ -35,12 +35,12 @@ public class ApplicationDbContext : DbContext
 ```
 ## DataTables Implementation
 1. Style Sheets & Scripts `/Pages/Shared/_Layout.cshtml`
-```
+```html
 <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 ```
 2. DataTables Request Models
-```
+```cs
 public class DataTablesRequest
 {
     public int Draw { get; set; }
@@ -84,7 +84,7 @@ public class Search
 }
 ```
 3. Server-side processing `/Pages/Customers/Index.cshtml.cs`
-```
+```cs
 public class IndexModel : PageModel
 {
     private readonly WebApplication.Data.ApplicationDbContext _context;
@@ -147,7 +147,7 @@ public class IndexModel : PageModel
 }
 ```
 4. Client-side `/Pages/Customers/Index.cshtml`
-```
+```razor
 <p>
     <a asp-page="Create">Create New</a>
 </p>
