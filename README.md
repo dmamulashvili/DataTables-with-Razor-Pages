@@ -192,7 +192,7 @@ public class IndexModel : PageModel
                     "targets": -1,
                     "data": null,
                     "render": function (data, type, row, meta) {
-                        return '<a href="/customers/edit/' + row.id + '">Edit</a> | <a href="/customers/details/' + row.id + '">Details</a> | <a href="/customers/delete/' + row.id + '">Delete</a>';
+                        return '<a href="/customers/edit?id=' + row.id + '">Edit</a> | <a href="/customers/details?id=' + row.id + '">Details</a> | <a href="/customers/delete?id=' + row.id + '">Delete</a>';
                     },
                     "sortable": false
                 },
